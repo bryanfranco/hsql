@@ -12,9 +12,23 @@ public class BankingDAO {
 	public BankingDAO(DataSource datasource) {
 		myDataSource = datasource;
 	}
+        
+        /**
+         * Renvoie le nom d'un client à partir de son ID
+         * @param id la clé du client à chercher
+         * @return le nom du client
+         * @throws SQLException
+         */
+        
+        /*public String exists(int id){
+            String sql = "SELECT * FROM ACCOUNT WHERE CustomerID = ?";
+            try( Connection co = myDataSource.getConnection();
+                 PreparedStatement )
+            
+        }*/
 
 	/**
-	 * Renvoie le nom d'un client à partir de son ID
+	 * Renvoie la balance d'un client à partir de son ID
 	 * @param id la clé du client à chercher
 	 * @return le solde du compte du client
 	 * @throws SQLException 
@@ -53,18 +67,23 @@ public class BankingDAO {
 			myConnection.setAutoCommit(false); // On démarre une transaction
 			try {
 				// On débite le 1° client
-				statement.setFloat( 1, amount * -1);
-				statement.setInt(2, fromID);
-				int numberUpdated = statement.executeUpdate();
+                                if (balanceForCustomer(fromID)-amount < 0 ) {
+                                    throw new Exception("t'as plus d'argent voyons hihi");
+                            }
+                                else{
+                                    statement.setFloat( 1, amount * -1);
+                                    statement.setInt(2, fromID);
+                                    int numberUpdated = statement.executeUpdate();
 
 				// On crédite le 2° client
-				statement.clearParameters();
-				statement.setFloat( 1, amount);
-				statement.setInt(2, toID);
-				numberUpdated = statement.executeUpdate();
+                                    statement.clearParameters();
+                                    statement.setFloat( 1, amount);
+                                    statement.setInt(2, toID);
+                                    numberUpdated = statement.executeUpdate();
 
 				// Tout s'est bien passé, on peut valider la transaction
-				myConnection.commit();
+                                    myConnection.commit();  
+                                }
 			} catch (Exception ex) {
 				myConnection.rollback(); // On annule la transaction
 				throw ex;       
