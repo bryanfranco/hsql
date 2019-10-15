@@ -1,5 +1,6 @@
 package banking;
 
+import com.sun.media.jfxmedia.logging.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -63,6 +64,28 @@ public class BankingTest {
 		assertEquals("Balance incorrecte !", before0 - amount, myDAO.balanceForCustomer(fromCustomer), 0.001f);
 		assertEquals("Balance incorrecte !", before1 + amount, myDAO.balanceForCustomer(toCustomer), 0.001f);				
 	}
+        
+        @Test(expected = Exception.class)
+        public void negativeBalance() throws Exception{
+            float amount = 150.0f;
+            int fromCustomer = 0;
+            int toCustomer = 1;
+            float before0 = myDAO.balanceForCustomer(fromCustomer);
+            float before1 = myDAO.balanceForCustomer(toCustomer);
+            myDAO.bankTransferTransaction(fromCustomer, toCustomer, amount);
+            assertEquals(before0-amount, myDAO.balanceForCustomer(fromCustomer));
+        }
+        
+        @Test(expected = Exception.class)
+        public void doesRecieverExists() throws Exception{
+            try{
+                float x = myDAO.balanceForCustomer(1);
+                myDAO.bankTransferTransaction(1, 60, 10.f);
+            }catch(Exception e){
+                Logger.logMsg(1, "lol");
+            }
+                
+        }
 	
 
 	public static DataSource getDataSource() throws SQLException {
